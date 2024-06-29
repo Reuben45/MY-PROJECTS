@@ -1,0 +1,305 @@
+Search on Google ===========> HTTP status code doc
+
+As an Apache HTTP Server administrator, your most valuable assets are the log files, and, in particular, the error log. Troubleshooting any problem without the error log is like driving with your eyes closed.
+
+The location of the error log is defined by the ErrorLog directive, which may be set globally, or per virtual host. Entries in the error log tell you what went wrong, and when. They often also tell you how to fix it. Each error log message contains an error code, which you can search for online for even more detailed descriptions of how to address the problem. You can also configure your error log to contain a log ID which you can then correlate to an access log entry, so that you can determine what request caused the error condition.
+
+
+The format of the error log is defined by the ErrorLogFormat directive, with which you can customize what values are logged. A default is format defined if you don't specify one. A typical log message follows:
+
+[Fri Sep 09 10:42:29.902022 2011] [core:error] [pid 35708:tid 4328636416] [client 72.15.99.187] File does not exist: /usr/local/apache2/htdocs/favicon.ico
+
+The first item in the log entry is the date and time of the message. The next is the module producing the message (core, in this case) and the severity level of that message. This is followed by the process ID and, if appropriate, the thread ID, of the process that experienced the condition. Next, we have the client address that made the request. And finally is the detailed error message, which in this case indicates a request for a file that did not exist.
+
+The structure for acces.log reading is
+
+startin off with with 
+IP address, 
+timestamp and date, 
+A "GET reguest, 
+A status code, 
+File size, and 
+the refer and finally the webClient
+
+192.168.1.5 - - [28/Jan/2024:19:28:05 -0500] "GET / HTTP/1.0" 403 199691 "-" "-"
+192.168.1.5 - - [28/Jan/2024:19:28:18 -0500] "POST / HTTP/1.1" 404 196 "-" "Mozilla/5.0 (compati                                                                                 ble; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
+
+List out time and date
+List out the prots
+List out PID PPID
+List out priority The priority field or pri for short (“<34>” in the example) tells you how urgent or severe the event is
+List out Application name
+List out the localhost/hostname of the device you are connected
+List out the daemone or service in question
+List out the IP or comands use
+
+How to check your virtual host configuration
+# httpd -S
+
+How to check the default logs files and other httpd details
+# httpd -V
+
+To check apache process running and count the number of process
+# ps -aux | grep httpd  ; ps -aux | grep http | wc -l 
+
+To check the Number of process currently in use
+# pgrep -c httpd
+
+How to use the curl command to check url
+# curl http://localhost:1234
+# curl --verbose http://localhost:1234
+
+
+
+NB: when reading log files pay attention to the time stamp and pay attention to things like "port number" "service name" and key words and sentences like "error" "failed", and short setence like "connection time out" "crush service" take note of "IP adrres or client or server" "PID, PPID, of process" "crush" "memory" "starting" "stoping" "debug" "info" "notice" "crit"
+
+# tail -f <log_file_name> | grep ERROR" 
+# cat <log_file_name> | grep -e "sshd"
+
+To see the IP address that have acces my enviroment
+# cat access_log | cut -f1 -d" " | sort | uniq
+
+which systems are accessing my enviroment the most
+# cat access_log | cut -f1 -d" " | sort | uniq -c
+
+# head -n1 access_log
+# cat access_log | cut -d'"'
+
+To get the list of all the pages that been acces in your website
+# cat access_log | cut -d'"' -f2
+# cat access_log | cut -d'"' -f2 | cut -d" " -f2 | sort | uniq -c 
+
+How to look for everything that doesn't have the 200 status code 200 status code means everything is working just fine
+
+# cat access_log | grep -v 200
+# cat access_log | grep 404
+# cat access_log | grep 404 | cut d'"' -f2 | sort | uniq -c 
+
+How to check the refer who is accesing my webpage where are they coming from
+cat access_log | cut -d'"' -f4 | sort | uniq -c 
+
+Which webrower is accessing my website
+# cat access_log | cut -d'"' -f6 
+# cat access_log | cut -d'"' -f6 | cut -d"(" -f2 | cut -d")" -f1
+
+
+PHP-FPM Error with Apache: He checked in php logs which is 
+tail /var/log/php8.1-fpm.log
+
+tO increase the pm.max_children he log for the php config file and increase the number of children in the configuration which is in
+
+# cd /etc/php/8.1/fpm/pool.d/ ; vi www.conf edite the pm.max_children which was set to 5 he changes it to 35
+
+To see the specific ampount of memory consmed by that php process we ran
+# ps -C php-fpm8.1 -o rss=
+
+You could use the php process calcutor to see how much ram is need for the total number of children running
+
+To see what webserver is been used by a system you type in
+
+# wget -S <url>   ===========> wget -S www.google.com or www.grcc.edu
+# wget -S --spider www.grcc.edu
+
+==> opensource complier c++ complier
+
+
+####Apache Logging#####
+Features:
+1. Error: /var/log/httpd/acces_log -HTTP hits end-up here 2xx, 3xx
+2. Access: /var/log/httpd/error_log -Errors accessing content: 4xx, 5xx
+3. Vars are defined in: /etc/httpd/conf/httpd.conf
+4. Log Vars are arranged into froups that are reference per virtaul host: 'LogFormate'
+
+LogLevel: Control the number of messages logged to the error_log.
+# Possible values include: debug, info, notice, warn, error, crit,
+# alert, emerg.
+
+
+First check your Repo are configured
+# dnf repoinfo
+# dnf repolist all
+
+Install apache
+# dnf install httpd
+
+Edite the configuration file and customize the file according to your configuration
+
+# vi /etc/httpd/conf/httpd.conf
+
+Make sute the listening port is 80 or if you which you could change the port number and the DocumentRoot /var/www/html
+
+Specify a unique IP address to which the service will listen for requests in a case of a cluster. For example:
+Listen 192.168.1.100:80
+
+Manage the service after installing you need to start the service
+
+# systemctl restart httpd
+# systemctl enable httpd
+# systemctl status httpd
+
+Now Open the ports on the firewall and make it permanent
+
+# firewall-cmd --permanent --zone=public --add-service=http
+# firewall-cmd --reload
+# firewall-cmd --list-all --zone=public
+
+Create your Content
+
+You site homepage is by defaults index.html and location /var/www/html
+
+First make a backup of the configuration file
+
+vi index.html
+<html>
+<head>
+<title>Welcome to my test site!</title>
+</head>
+<body>
+This site is for testing purposes only
+</body>
+</html>
+Esc:wq
+
+Still in the same location create another file to test your download with wget and the curl command
+
+# touch downlod-this.txt
+
+ Store these two files at /var/www/html
+
+Install the curl and wget commands
+
+# dnf install curl -y
+# dnf install wget -y
+
+Now test your website
+
+# wget http://IP/download-this.txt
+# curl 
+
+Go to your webroswer and tye http://IP
+
+Check the logs
+
+cat /var/log/httpd/access_log | grep -I download-this.txt
+
+===========================================>
+===========================================>
+
+# yum install httpd
+# yum install hhtpd-devel
+# yum install mod_perl
+# yum install php php-mysql
+
+# yum install mod_ssl
+
+To check the httpd information and the machine information run the command
+
+# httpd -V 
+
+<VirtaulHost *:80>
+        serverName   www.example.com
+        ServerAlias  example.com
+        DocumentRot  /var/www/html/example.com
+        ServerAdmin  webmaster@example.com
+        ErrorLog     Logs/example.com-error log
+        CustomLog    logs/example.com-access_log common
+        DirectoryIndex  home.html
+
+After configuration of a virtual host to check your configuration before actaully restarting the service you could run the command
+
+NB: To enable apache to listen on serverl virtaul host make sure to uncomment Namebase virtual host on the /etc/httpd/conf/httpd.conf if you not using the IP base virtaul hosting
+
+# httpd -t
+
+If you are trying to debug your virtual host configuration, you may find the -S command line switch useful.
+
+# apachectl -S
+
+Always use the reload option to start the service
+
+# systemctl reload httpd
+
+To check your side your use the curl command 
+
+# curl http://localhost
+# curl http://www.example.com
+
+or you could install the links ultility and use
+
+# yum install links
+# links http://www.example.com
+Than press q to quite out of that
+
+HOW TO BACKUP YOUR APPACHE SERVER
+
+******************************************************************************************************************************************************************
+
+Step # 1: Create /root/backup.sh script
+
+#!/bin/bash
+# A Simple Shell Script to Backup Red Hat / CentOS / Fedora / Debian / Ubuntu Apache Webserver and SQL Database
+# Path to backup directories
+DIRS="/home/vivek/ /var/www/html/ /etc"
+ 
+# Store todays date
+NOW=$(date +"%F")
+ 
+# Store backup path
+BACKUP="/backup/$NOW"
+ 
+# Backup file name hostname.time.tar.gz 
+BFILE="$(hostname).$(date +'%T').tar.gz"
+PFILE="$(hostname).$(date +'%T').pg.sql.gz"
+MFILE="$(hostname).$(date +'%T').mysql.sq.gz"
+ 
+# Set Pgsql username
+PGSQLUSER="vivek"
+ 
+# Set MySQL username and password
+MYSQLUSER="vivek"
+MYSQLPASSWORD="myPassword"
+ 
+# Remote SSH server setup
+SSHSERVER="backup.example.com" # your remote ssh server
+SSHUSER="vivek"                # username   
+SSHDUMPDIR="/backup/remote"    # remote ssh server directory to store dumps
+ 
+# Paths for binary files
+TAR="/bin/tar"
+PGDUMP="/usr/bin/pg_dump"
+MYSQLDUMP="/usr/bin/mysqldump"
+GZIP="/bin/gzip"
+SCP="/usr/bin/scp"
+SSH="/usr/bin/ssh"
+LOGGER="/usr/bin/logger"
+ 
+ 
+# make sure backup directory exists
+[ ! -d $BACKUP ] && mkdir -p ${BACKUP} 
+ 
+# Log backup start time in /var/log/messages
+$LOGGER "$0: *** Backup started @ $(date) ***"
+ 
+# Backup websever dirs
+$TAR -zcvf ${BACKUP}/${BFILE} "${DIRS}"
+ 
+# Backup PgSQL
+$PGDUMP -x -D -U${PGSQLUSER} | $GZIP -c > ${BACKUP}/${PFILE}
+ 
+# Backup MySQL
+$MYSQLDUMP  -u ${MYSQLUSER} -h localhost -p${MYSQLPASSWORD} --all-databases | $GZIP -9 > ${BACKUP}/${MFILE}
+ 
+# Dump all local files to failsafe remote UNIX ssh server / home server
+$SSH ${SSHUSER}@${SSHSERVER} mkdir -p ${SSHDUMPDIR}/${NOW}
+$SCP -r ${BACKUP}/* ${SSHUSER}@${SSHSERVER}:${SSHDUMPDIR}/${NOW}
+ 
+# Log backup end time in /var/log/messages
+$LOGGER "$0: *** Backup Ended @ $(date) ***"
+Esc:wq
+
+****************************************************************************************************************************************************************
+Step # 2: Create ssh keys
+Create ssh keys for password less login from your server to another offsite server hosted at your own home or another datacenter. See following faqs for more information:
+
+Step #3: Create Cron job to backup everyday
+

@@ -1,0 +1,64 @@
+# hostnamectl set-hostname tomcat.classes.local
+
+# vi /etc/hosts
+192.168.1.16 tomcat.classes.local localhost
+Esc:wq
+
+# dnf repolist all
+# dnf install -y java
+# java -version
+
+# groupadd --system tomcat
+# useradd -d /usr/share/tomcat -r -s /bin/false -g tomcat tomcat
+# yum install -y wget
+
+# export VER="9.0.64"
+# echo $VER
+
+# wget https://archive.apache.org/dist/tomcat/tomcat-9/v${VER}/bin/apache-tomcat-${VER}.tar.gz
+
+# tar xvf apache-tomcat-${VER}.tar.gz -C /usr/share
+
+# ls -s /usr/share/apache-tomcat-$VER/ /usr/share/tomcat
+
+# chown -R tomcat:tomcat /usr/share/tomcat
+# chown -R tomcat:tomcat /usr/share/apache-tomcat-$VER/
+# ll /usr/share/tomcat
+# cd /usr/share/tomcat
+# ll
+
+vim /etc/systemd/system/tomcat.service
+[Service}
+Type=forking
+User=tomcat
+Group=tomcat
+
+Enviroment=JAVA_HOME=/usr/lib/jvm/jre-openjdk
+Enviroment='JAVA_OPTS=-Djava.awt.headless=true'
+
+Enviroment=CATALINA_HOME=/usr/share/tomcat
+Enviroment=CATALINA_BASE=/usr/share/tomcat
+Enviroment=CATALINA_PID=/usr/share/tomcat/temp/tomcat.pid
+
+ExecStart=/usr/share/tomcat/bin/catalina.sh start
+ExecStop=/usr/share/tomcat/bin/catalina.sh stop
+
+[Install]
+WantedBy=multi-user.target
+Esc;wq
+
+# systemctl daemon-reload
+# systemctl restart tomcat
+# systemctl enable tomcat
+# systemctl status tomcat
+
+# firewall-cmd --add -port=8080/tcp --permanent
+# firewall-cmd --reload
+
+# vim /usr/share/tomcat/conf/tomcat-users.cml
+
+scrow down to the line were it says </tomcat-users>
+just above that type the following rules
+   <role rolename="admin-gui"/>
+<role rolename="manager-gui"/>
+<user username="admin" password="StrongPassword" fullName="Administrator" roles="admin-gui,manager-gui"/>

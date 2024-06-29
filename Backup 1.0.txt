@@ -1,0 +1,34 @@
+Back ups:
+what are some of the backup software that you are familiar with 
+We use Netbackup, tar, rsys
+
+Netback up 2 Tier is applicable to small to mdeium size environment
+IN a 2 Tier environment you have one server which is made of netbackup master server and netbackup media server and you have multiple clients  so one server has will be acting as master/media server at the same time so on the master server you will be configuring the policies and you will be creating the schedule and the same server on the media will be responsible for reading and writing whatever has been configured within the master, moving the data from the client to whatever storage areas has been configured in the master you have have the master and media on the same server. you will have your storage like tap, hardisk or storage connected or linked to the media server
+
+In the case of 3-Tier architecture of fortune 500 company here you will have the netbackup master server (it is like the brain) and you will have a different server as netback media server (Data mover). So the media server gets the instructions from the master server whatever has been configured in the master server policies it will move the data to the storage destination.
+
+In the netback Domain you can have one Master netback server and than you can have several media sever in all in different locations communicating with the master and moving the data across all three locations 
+
+For redundancy and to protect the a situation where if the master server netback goes down you vcan have to netbackup Domain which means you will have to master servers Here you can configure Auto imgae Replication between the two master servers
+
+
+Full backups:
+
+A full backup is exactly what the name implies: It is a full copy of your entire data set. Although full backups arguably provide the best protection, most organizations don't use them on a daily basis because they are time-consuming and often require a lot of disk or tape capacity.
+
+Because not every organization has the time or storage space for frequent full backups, other types are often necessary.
+
+Incremental backups:
+
+Incremental backups were introduced as a way to increase backup speed and decrease the storage space that it takes to do a full backup. Incremental backups only back up the data that has changed since the previous backup.
+For example, suppose that you created a full backup on Monday and used incremental backups for the rest of the week. Tuesday's scheduled backup would only contain the data that has changed since Monday. Wednesday's backup files would only contain the data that has changed since Tuesday and so on.The primary disadvantage of incremental backups is that they can be time-consuming to restore. Going back to my previous example, suppose that you wanted to restore the backup from Wednesday. To do so, you would have to first restore Monday's full backup. After that, you would have to restore Tuesday's backup, followed by Wednesday's.
+
+In addition, if any of the backup media happens to be missing or damaged, then you will experience incomplete data recovery.
+
+Differential backups:
+
+A differential backup is similar to an incremental backup in that it starts with a full backup and subsequent backups only contain data that has changed. The difference in incremental vs. differential backup is that, while an incremental backup only includes the data that has changed since the previous backup, a differential backup contains all of the data that has changed since the last full backup.
+
+Suppose that you wanted to create a full backup on Monday and differential backups for the rest of the week. Tuesday's backup would contain all of the data that has changed since Monday. It would, therefore, be identical to an incremental backup at that point. On Wednesday, however, the differential backup would back up any data that had changed since Monday as well.
+
+The advantage that differential backup offers over incremental backups is a shorter restore time. When speed is important, such as in a disaster recovery scenario where downtime is unacceptable, rapid restores can be crucial. Restoring a differential backup never requires more than two backup sets. Incremental backups, on the other hand, could require a great number of backup sets. Of course, the tradeoff in incremental vs. differential backup is that, as time progresses, differential backup media can grow to contain much more data than an incremental backup.

@@ -1,0 +1,304 @@
+https://docs.cpanel.net/whm/service-configuration/apache-configuration/
+https://www3.ntu.edu.sg/home/ehchua/programming/howto/Apache_HowToConfigure.html
+https://devdocs.io/apache_http_server/
+https://docs.espocrm.com/administration/apache-server-configuration/
+https://nil.pro.np/apache-web-server-configuration-guide/
+
+What you'll learn
+Granular level configuration of Apache HTTPD by understanding how Apache works.
+Setting up single website
+Setting up multiple websites
+Setting up Name base, ip base and port base web site hosting
+The Role of modules in Apache and how to use them effectively
+How to use aliases and redirecting URLs
+How to secure Your Apache server
+How to customise Apache log format according to your need
+How to reduce the redundant configuration lines while hosting multiple web sites using macro module
+How to use Apache for load balancing dynamic application like tomcat using JK connector
+How to configure LAMP Stack
+What is OWASP CRS and how to effectively use for strengthening Apache security
+How to mitigate current known vulnerabilities of Apache
+How to use LetsEncrypt SSL certificate for Apache web site
+How to install Nagios (System monitoring software) with Apache as a CGI application
+
+Main Configuration file =================>
+
+Listen 0.0.0.0:80
+user apache
+group apche
+ServerName www.example.com
+ErrorLog /var/log/httpd/error.log
+LoadModule authz_host_module modules/mod_authz_host.so
+LoadModule dir_module modules/mod_dir.so
+DirectoryIndex index.html
+DocumentRoot /var/www/html
+<Directory /var/www/html>
+       AllowOverride None
+       Order allow,deny
+       allow from 192.168.0.0/24
+</Directory>
+
+Thi is a 14 lin simple basic apache cnfiguration
+******************************************************************************************************************************************************************************* Bellow is different configurationas*************************
+
+Listen 0.0.0.0:80
+user apache
+group apche
+ServerName www.example.com
+ErrorLog /var/log/httpd/error.log
+Include conf.d/modules.conf
+DirectoryIndex index.html
+DocumentRoot /var/www/html
+ExtendedStatus on
+<Directory /var/www/html>
+        AllowOverride None
+        Order all,deny
+        allow from 192.168..8.8/24
+        allow from 127.0.0.1/24
+</Directory>
+</Location>
+<Location /server-info>
+        Sethandler server-info
+        order allow,deny
+        allow from 192.168.1.199
+</Location>
+ScriptAlias /cgi-bin/ /var/www/cgi-bin/
+AddHandler cgi-script .pl
+TypesConfig /etc/mime.types
+<Directory /var/www/cgi-bin>
+       Options +ExecCGI
+</Directory>
+
+*********************************************************************************************************************************************************************************************************************************************
+
+<VirtualHost _default_:443>
+    DocumentRoot "/var/www/html"
+    ServerName your-server-name
+ 
+    SSLEngine on
+    SSLCertificateFile /etc/ssl/certs/apache.crt
+    SSLCertificateKeyFile /etc/ssl/private/apache.key
+ 
+    <Directory "/var/www/html">
+        Options Indexes FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+# Limit access to sensitive files
+
+<FilesMatch "\.(log|cfg)$">
+    Require all denied
+</FilesMatch>
+
+*******************************************************************************************************************************************************
+
+File: /etc/httpd/conf/httpd.conf
+<IfModule prefork.c>
+    StartServers        4
+    MinSpareServers     20
+    MaxSpareServers     40
+    MaxClients          200
+    MaxRequestsPerChild 4500
+</IfModule>
+
+File: /etc/httpd/conf.d/vhost.conf
+<VirtualHost *:80>
+     ServerAdmin admin@example.org
+     ServerName example.org
+     ServerAlias www.example.org
+     DocumentRoot /srv/www/example.org/public_html/
+     ErrorLog /srv/www/example.org/logs/error.log
+     CustomLog /srv/www/example.org/logs/access.log combined
+</VirtualHost>
+
+sudo mkdir -p /srv/www/example.org/public_html
+sudo mkdir -p /srv/www/example.org/logs
+
+***********************************************************************************************************************************************************************************************************
+
+We need to edit the 'linux.conf' file. Under 'DocumentRoot', add:
+
+<Directory "/var/www/linux">
+Require valid-user
+AuthType Basic
+AuthName "Linux Privileged Site"
+AuthBasicProvider file
+AuthUserFile "/etc/httpd/conf.d/linux"
+</Directory>
+
+
+Next, edit the 'linux.conf' file. And make it look like:
+
+<VirtualHost *:80>
+ServerName "linux.example.com"
+DocumentRoot "/var/www/linux"
+<Directory "/var/www/linux">
+Require valid-user
+AuthType Basic
+AuthName "Linux Privileged Site"
+AuthBasicProvider file
+AuthUserFile "/etc/httpd/conf.d/linux"
+</Directory>
+</VirtualHost>
+Listen 443
+<VirtualHost *:443>
+ServerName "linux.example.com"
+DocumentRoot "/var/www/linux"
+SSLEngine on
+SSLCertificateKeyFile "/var/httpd/conf.d/linux.key"
+SSLCertificateFile "/var/httpd/conf.d/linux.crt"
+<Directory "/var/www/linux">
+Require valid-user
+AuthType Basic
+AuthName "Linux Privileged Site"
+AuthBasicProvider file
+AuthUserFile "/etc/httpd/conf.d/linux"
+</Directory>
+</VirtualHost>
+
+***************************************************************************************************************************************************************************************************
+
+After reading your web server using the systemctl command to see the number of process running do
+
+# cat /var/run/httpd/httpd.pid
+
+Also to see the mianPID and the total number of rquest and CPU,Memory info do
+
+# systemctl status httpd
+
+Main PID: 1739 (httpd)
+     Status: "Total requests: 0; Idle/Busy workers 100/0;Requests/sec: 0; Bytes served/sec:   0>
+      Tasks: 213 (limit: 10728)
+     Memory: 28.8M
+        CPU: 4.223s
+     CGroup: /system.slice/httpd.service
+
+To check the process listing for httpd do
+
+# ps -elf | grep httpd
+
+To view your virtual host configuration from command line do
+
+# httpd -S
+
+To view other details do
+# httpd -V
+
+To view installed stated installed modules
+# httpd -l 
+
+To view install modules both static and shared run
+# httpd -M 
+
+How to scan my httpd.conf file for syntax errors use the command 
+# apachectl configtest or 
+# httpd -t 
+
+To check your log files do
+tail -n 50 /var/log/httpd/error_log
+ 
+The Apache Web server
+uses the mod_ssl module, which provides an interface to the OpenSSL library,
+allowing the use of SSL and TLS.
+
+To check if your openssl library is installed use
+
+# rpm -qa openssl
+
+To certify if Apache uses mod_ssl, you should look for it in the /etc/httpd/
+modules directory.
+
+# cd /etc/htpd/modules ; ls mod_ssl*
+
+Secure Web server file names and locations
+
+Full path and                                  name Description
+/etc/httpd/conf.d/ssl.conf                     Main configuration file
+/etc/httpd/modules                             Location of all modules
+/etc/httpd/modules/mod_ssl.so                  Location of mod_ssl module
+/etc/pki/tls/certs                             Location of server and CA
+certificates
+/etc/pki/tls/private                            Location of server keys
+
+To list the number of attacks trying to exploit the Apache
+# grep -c "/jsp/source.jsp?/jsp/ /jsp/source.jsp??" access_log
+
+To list the ten last denied clients
+# grep "client denied" error_log | tail -n 10
+
+To see what webserver is been used by a system you type in
+
+# wget -S <url>   ===========> wget -S www.google.com or www.grcc.edu
+# wget -S --spider www.grcc.edu
+
+How to download the source code of apache go to https://httpd.apache.org/download.cgi and copy the url and download using wget
+
+# wget https://dlcdn.apache.org/httpd/httpd-2.4.58.tar.gz
+# tar -xzvf httpd-2.4.58.tar.gz ; cd httpd-2.4.58.tar.gz
+# yum install apr-devel
+apr-util-1.6.1-20.el9.i686 
+# ./configure --prefix=/home/knoppix/apache --with-port=8080
+
+
+
+httpd-2.4.58.tar.gz
+
+Apache is built, based on the principle of modularity, this way, it enables web server administrators to add different modules to extend its primary functionalities and enhance apache performance as well.
+
+mod_ssl – which offers HTTPS for Apache.
+
+mod_rewrite – which allows for matching url patterns with regular expressions, and perform a transparent redirect using .htaccess tricks, or apply a HTTP status code response.
+
+mod_security – which offers you to protect Apache against Brute Force or DDoS attacks.
+
+mod_status – that allows you to monitor Apache web server load and page statics.
+
+Check Enabled Apache Modules
+
+$ apache2ctl -t -D DUMP_MODULES   
+OR apachectl -M
+$ apache2ctl -M
+
+Fidn the top 10 IP access your website 
+# awk '{ print $1}' access.log.2016-05-08 | sort | uniq -c | sort -nr | head -n 10
+
+To view the last login and sign in attempt you cat the /var/log/wtmp but you won't see anything so rather do something with btmp file
+
+# last -aiF    ========  # 
+# lastb -adF
+# lastb -adF root
+# lastlog -u root
+
+# head -n1 access_log
+# cat access_log | cut -d'"'
+
+To get the list of all the pages that been access in your website
+# cat access_log | cut -d'"' -f2
+# cat access_log | cut -d'"' -f2 | cut -d" " -f2 | sort | uniq -c 
+
+How to look for everything that doesn't have the 200 status code 200 status code means everything is working just fine
+
+# cat access_log | grep -v 200
+# cat access_log | grep 404
+# cat access_log | grep 404 | cut d'"' -f2 | sort | uniq -c 
+
+How to check the refer who is accessing my webpage where are they coming from
+cat access_log | cut -d'"' -f4 | sort | uniq -c 
+
+Which webrower is accessing my website
+# cat access_log | cut -d'"' -f6 
+# cat access_log | cut -d'"' -f6 | cut -d"(" -f2 | cut -d")" -f1
+
+
+apche.org/docs/2.2/howto/auth.html
+Sample Authentication 
+
+AuthTtpe Basic
+AuthName "Restricted Files"
+#  (Following line optional)
+AuthBasicProvider file
+AuthUserFile /usr/local/apache/passwd/passwords
+Require user 
+
